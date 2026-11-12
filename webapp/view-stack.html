@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Donation Stack | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="view-stack" data-title="Donation Stack" data-sub="Latest donations first - the top of the stack is processed next">
+<div id="content">
+<div class="card">
+  <div class="card-head"><div><h2>Stack (last in, first out)</h2><p id="count">Loading...</p></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-outline" id="refresh">Refresh</button><a class="btn btn-primary" href="process-donation.html">Process Donation</a></div></div>
+  <div id="body" class="table-wrap"></div>
+</div>
+</div>
+<script src="app.js"></script>
+<script>
+async function load() {
+  var body = document.getElementById('body'); body.innerHTML = FS.loading();
+  try {
+    var list = await FS.api('viewStack');
+    document.getElementById('count').textContent = list.length + ' of 5 stack positions in use';
+    if (!list.length) { body.innerHTML = FS.empty('The stack is empty', 'New donations appear here as soon as they are added.', 'add-donation.html', 'Add Donation'); return; }
+    body.innerHTML = '<table class="data"><thead><tr><th>Position</th><th>Reference</th><th>Food item</th><th>Quantity</th><th>Donor</th><th></th></tr></thead><tbody>' +
+      list.map(function (d, i) { return '<tr><td>' + (list.length - i) + '</td><td class="mono">' + FS.esc(d.donationId) + '</td><td><b>' + FS.esc(d.foodName) +
+        '</b></td><td>' + FS.esc(d.quantity) + ' kg</td><td>' + FS.esc(d.donorName) + '</td><td>' + (i === 0 ? '<span class="badge amber">Next to process</span>' : '') + '</td></tr>'; }).join('') + '</tbody></table>';
+  } catch (e) { console.error(e); body.innerHTML = FS.error('Unable to load the stack from the server.'); }
+}
+document.getElementById('refresh').onclick = load; load();
+</script></body></html>

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Available Donations | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="view-donations" data-title="Available Donations" data-sub="Donations currently waiting to be distributed (linked list order)">
+<div id="content">
+<div class="card">
+  <div class="card-head"><div><h2>Donation list</h2><p id="count">Loading...</p></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-outline" id="refresh">Refresh</button><a class="btn btn-primary" href="add-donation.html">Add Donation</a></div></div>
+  <div id="body" class="table-wrap"></div>
+</div>
+</div>
+<script src="app.js"></script>
+<script>
+async function load() {
+  var body = document.getElementById('body'); body.innerHTML = FS.loading();
+  try {
+    var list = await FS.api('viewDonations');
+    document.getElementById('count').textContent = list.length + (list.length === 1 ? ' donation available' : ' donations available');
+    if (!list.length) { body.innerHTML = FS.empty('No donations available', 'Add a donation to see it listed here.', 'add-donation.html', 'Add Donation'); return; }
+    body.innerHTML = '<table class="data"><thead><tr><th>#</th><th>Reference</th><th>Food item</th><th>Quantity</th><th>Donor</th><th>Status</th></tr></thead><tbody>' +
+      list.map(function (d, i) { return '<tr><td>' + (i + 1) + '</td><td class="mono">' + FS.esc(d.donationId) + '</td><td><b>' + FS.esc(d.foodName) +
+        '</b></td><td>' + FS.esc(d.quantity) + ' kg</td><td>' + FS.esc(d.donorName) + '</td><td><span class="badge green">Available</span></td></tr>'; }).join('') + '</tbody></table>';
+  } catch (e) { console.error(e); body.innerHTML = FS.error('Unable to load donations from the server.'); }
+}
+document.getElementById('refresh').onclick = load; load();
+</script></body></html>

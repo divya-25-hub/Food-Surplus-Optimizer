@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Process Donation | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="process-donation" data-title="Process Donation" data-sub="Match the next donation with a recipient and confirm the distribution">
+<div id="content"><div id="view">
+  <div class="card">
+    <div class="card-pad" id="first">Loading...</div>
+  </div>
+</div></div>
+<script src="app.js"></script>
+<script>
+var donation = null, matches = [], selected = null;
+var view = document.getElementById('view');
+
+function info(msg, extra) {
+  view.innerHTML = '<div class="card">' + FS.empty(msg, extra || '', 'add-donation.html', 'Add Donation') + '</div>';
+}
+
+async function load() {
+  selected = null;
+  view.innerHTML = '<div class="card">' + FS.loading() + '</div>';
+  try {
+    var data = await FS.api('processDonation');
+    if (!data.success) { info(data.message || 'No pending donations', 'Add a donation to start matching.'); return; }
+    donation = data; matches = data.matches || [];
+    render();
+  } catch (e) { console.error(e); view.innerHTML = '<div class="card">' + FS.error('Unable to reach the server.') + '</div>'; }
+}
+
+function render() {
+  var h = '<div class="card" style="margin-bottom:20px"><div class="card-head"><div><h2>Donation to distribute</h2><p>The most recent donation (top of the stack)</p></div>' +
+    '<span class="badge green">Available</span></div><div class="summary">' +
+    '<div><span>Reference</span><strong class="mono">' + FS.esc(donation.donationId) + '</strong></div>' +
+    '<div><span>Food item</span><strong>' + FS.esc(donation.foodName) + '</strong></div>' +
+    '<div><span>Quantity</span><strong>' + FS.esc(donation.quantity) + ' kg</strong></div>' +
+    '<div><span>Donor</span><strong>' + FS.esc(donation.donorName) + '</strong></div></div></div>';
+
+  h += '<div class="card"><div class="card-head"><div><h2>Matching recipients</h2><p>' +
+    (matches.length ? matches.length + ' recipient' + (matches.length > 1 ? 's' : '') + ' need this food. Select one to continue.' : 'No recipients match yet') + '</p></div>' +
+    '<button class="btn btn-outline" id="refresh">' + FS.icons.refresh + 'Refresh</button></div>';
+
+  if (!matches.length) {
+    h += '<div class="alert warn" style="margin:22px 24px 0">' + FS.esc(donation.message) + '</div>' +
+         FS.empty('No matching recipients', 'This donation stays available and can be processed later.');
+  } else {
+    h += '<div class="picks">' + matches.map(function (m, i) {
+      return '<div class="pick" data-i="' + i + '" tabindex="0"><span class="radio"></span><h3>' + FS.esc(m.name) + '</h3>' +
+        '<div class="tag"><span class="badge blue">Needs ' + FS.esc(m.quantity) + ' kg</span></div><dl>' +
+        '<dt>Phone</dt><dd>' + FS.esc(m.phone || 'Not provided') + '</dd>' +
+        '<dt>Email</dt><dd>' + FS.esc(m.email || 'Not provided') + '</dd>' +
+        '<dt>Address</dt><dd>' + FS.esc(m.address || 'Not provided') + '</dd>' +
+        '<dt>Food</dt><dd>' + FS.esc(donation.foodName) + '</dd></dl></div>';
+    }).join('') + '</div>' +
+    '<div class="confirm-bar"><span id="hint">Select a recipient to enable confirmation</span>' +
+    '<button class="btn btn-primary btn-lg" id="confirmBtn" disabled>Confirm Distribution</button></div>';
+  }
+  h += '</div>';
+  view.innerHTML = h;
+  document.getElementById('refresh').onclick = load;
+  document.querySelectorAll('.pick').forEach(function (el) {
+    var pick = function () { choose(+el.getAttribute('data-i')); };
+    el.onclick = pick; el.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } };
+  });
+  if (matches.length === 1) choose(0);
+  var cb = document.getElementById('confirmBtn'); if (cb) cb.onclick = confirmClick;
+}
+
+function choose(i) {
+  selected = matches[i];
+  document.querySelectorAll('.pick').forEach(function (el) { el.classList.toggle('selected', +el.getAttribute('data-i') === i); });
+  document.getElementById('confirmBtn').disabled = false;
+  document.getElementById('hint').innerHTML = 'Selected: <b>' + FS.esc(selected.name) + '</b>';
+}
+
+async function confirmClick() {
+  if (!selected) return;
+  var yes = await FS.confirm('Confirm distribution?',
+    'Distribute <b>' + FS.esc(donation.quantity) + ' kg of ' + FS.esc(donation.foodName) + '</b> from <b>' + FS.esc(donation.donorName) +
+    '</b> to <b>' + FS.esc(selected.name) + '</b>? This marks the donation and the recipient request as completed.', 'Yes, confirm', 'No');
+  if (!yes) { FS.toast('Cancelled. The donation is still available.', 'info'); return; }
+  var btn = document.getElementById('confirmBtn'); btn.disabled = true; btn.textContent = 'Processing...';
+  try {
+    var data = await FS.api('confirmDonation', { donationId: donation.donationId, needId: selected.needId });
+    if (data.success) {
+      view.innerHTML = '<div class="card"><div class="success-panel"><div class="tick">' + FS.icons.tick + '</div><h2>Distribution confirmed</h2><p>' +
+        FS.esc(donation.quantity) + ' kg of ' + FS.esc(donation.foodName) + ' will go to ' + FS.esc(data.recipientName) + '.</p>' +
+        '<div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="load()">Process Next Donation</button>' +
+        '<a class="btn btn-outline" href="dashboard.jsp">Back to Dashboard</a></div></div></div>';
+      FS.toast('Distribution confirmed');
+    } else {
+      FS.toast(data.message || 'Could not confirm the distribution.', 'error');
+      btn.disabled = false; btn.textContent = 'Confirm Distribution';
+    }
+  } catch (e) { console.error(e); FS.toast('Server error. Nothing was changed.', 'error'); btn.disabled = false; btn.textContent = 'Confirm Distribution'; }
+}
+load();
+</script></body></html>

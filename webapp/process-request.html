@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Process Request | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="process-request" data-title="Process Request" data-sub="Find a suitable donor for the next request in the queue">
+<div id="content"><div id="view"></div></div>
+<script src="app.js"></script>
+<script>
+var req = null, matches = [], selected = null;
+var view = document.getElementById('view');
+
+async function load() {
+  selected = null;
+  view.innerHTML = '<div class="card">' + FS.loading() + '</div>';
+  try {
+    var data = await FS.api('processRequest');
+    if (!data.success) {
+      view.innerHTML = '<div class="card">' + FS.empty(data.message || 'No pending requests', 'Add a request to start matching.', 'add-request.html', 'Add Request') + '</div>';
+      return;
+    }
+    req = data; matches = data.matches || [];
+    render();
+  } catch (e) { console.error(e); view.innerHTML = '<div class="card">' + FS.error('Unable to reach the server.') + '</div>'; }
+}
+
+function render() {
+  var h = '<div class="card" style="margin-bottom:20px"><div class="card-head"><div><h2>Request to fulfil</h2><p>The next request in the queue</p></div>' +
+    '<span class="badge amber">Pending</span></div><div class="summary">' +
+    '<div><span>Request ID</span><strong class="mono">' + FS.esc(req.requestId) + '</strong></div>' +
+    '<div><span>Recipient</span><strong>' + FS.esc(req.recipientName) + '</strong></div>' +
+    '<div><span>Food required</span><strong>' + FS.esc(req.foodRequired) + '</strong></div>' +
+    '<div><span>Quantity</span><strong>' + FS.esc(req.quantityRequired) + ' kg</strong></div></div></div>';
+
+  h += '<div class="card"><div class="card-head"><div><h2>Suitable donors</h2><p>' +
+    (matches.length ? matches.length + ' donor' + (matches.length > 1 ? 's' : '') + ' can supply this request. Select one to continue.' : 'No donors can supply this request yet') + '</p></div>' +
+    '<button class="btn btn-outline" id="refresh">' + FS.icons.refresh + 'Refresh</button></div>';
+
+  if (!matches.length) {
+    h += '<div class="alert warn" style="margin:22px 24px 0">' + FS.esc(req.message) + '</div>' +
+         FS.empty('No suitable donors', 'The request remains pending and can be processed later.');
+  } else {
+    h += '<div class="picks">' + matches.map(function (m, i) {
+      return '<div class="pick" data-i="' + i + '" tabindex="0"><span class="radio"></span><h3>' + FS.esc(m.name) + '</h3>' +
+        '<div class="tag"><span class="badge green">' + FS.esc(m.quantityAvailable) + ' kg available</span></div><dl>' +
+        '<dt>Phone</dt><dd>' + FS.esc(m.phone || 'Not provided') + '</dd>' +
+        '<dt>Email</dt><dd>' + FS.esc(m.email || 'Not provided') + '</dd>' +
+        '<dt>Address</dt><dd>' + FS.esc(m.address || 'Not provided') + '</dd>' +
+        '<dt>Food</dt><dd>' + FS.esc(m.foodName) + '</dd></dl></div>';
+    }).join('') + '</div>' +
+    '<div class="confirm-bar"><span id="hint">Select a donor to enable confirmation</span>' +
+    '<button class="btn btn-primary btn-lg" id="confirmBtn" disabled>Confirm Request</button></div>';
+  }
+  h += '</div>';
+  view.innerHTML = h;
+  document.getElementById('refresh').onclick = load;
+  document.querySelectorAll('.pick').forEach(function (el) {
+    var pick = function () { choose(+el.getAttribute('data-i')); };
+    el.onclick = pick; el.onkeydown = function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(); } };
+  });
+  if (matches.length === 1) choose(0);
+  var cb = document.getElementById('confirmBtn'); if (cb) cb.onclick = confirmClick;
+}
+
+function choose(i) {
+  selected = matches[i];
+  document.querySelectorAll('.pick').forEach(function (el) { el.classList.toggle('selected', +el.getAttribute('data-i') === i); });
+  document.getElementById('confirmBtn').disabled = false;
+  document.getElementById('hint').innerHTML = 'Selected: <b>' + FS.esc(selected.name) + '</b>';
+}
+
+async function confirmClick() {
+  if (!selected) return;
+  var yes = await FS.confirm('Confirm this request?',
+    'Fulfil request <b>' + FS.esc(req.requestId) + '</b> (' + FS.esc(req.quantityRequired) + ' kg of ' + FS.esc(req.foodRequired) + ' for <b>' +
+    FS.esc(req.recipientName) + '</b>) using donor <b>' + FS.esc(selected.name) + '</b>?', 'Yes, confirm', 'No');
+  if (!yes) { FS.toast('Cancelled. The request is still pending.', 'info'); return; }
+  var btn = document.getElementById('confirmBtn'); btn.disabled = true; btn.textContent = 'Processing...';
+  try {
+    var data = await FS.api('confirmRequest', { requestId: req.requestId, inventoryId: selected.inventoryId });
+    if (data.success) {
+      view.innerHTML = '<div class="card"><div class="success-panel"><div class="tick">' + FS.icons.tick + '</div><h2>Request confirmed</h2><p>Request ' +
+        FS.esc(req.requestId) + ' for ' + FS.esc(req.recipientName) + ' will be supplied by ' + FS.esc(data.donorName) + '.</p>' +
+        '<div class="form-actions" style="justify-content:center"><button class="btn btn-primary" onclick="load()">Process Next Request</button>' +
+        '<a class="btn btn-outline" href="dashboard.jsp">Back to Dashboard</a></div></div></div>';
+      FS.toast('Request confirmed');
+    } else {
+      FS.toast(data.message || 'Could not confirm the request.', 'error');
+      btn.disabled = false; btn.textContent = 'Confirm Request';
+    }
+  } catch (e) { console.error(e); FS.toast('Server error. The request is still pending.', 'error'); btn.disabled = false; btn.textContent = 'Confirm Request'; }
+}
+load();
+</script></body></html>

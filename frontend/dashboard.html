@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoodShare | Dashboard</title><link rel="stylesheet" href="style.css">
+<style>
+.dashboard-container{max-width:1180px;margin:0 auto;padding:34px 24px 60px}
+.welcome-banner{display:flex;align-items:center;justify-content:space-between;gap:30px;padding:38px 42px;border-radius:22px;background:linear-gradient(115deg,#145a45,#2d8b65);color:#fff;margin-bottom:30px;overflow:hidden}
+.welcome-content h2{font-size:clamp(27px,4vw,38px);margin:12px 0 10px;color:#fff}
+.welcome-content p{max-width:560px;color:rgba(255,255,255,.88);line-height:1.65;margin:0}
+.welcome-tag{font-size:11px;letter-spacing:1.7px;font-weight:700;color:#d5f4e2}
+.welcome-visual{width:170px;height:140px;flex:0 0 170px;display:grid;place-items:center;position:relative}
+.visual-box{width:110px;height:110px;border:1px solid rgba(255,255,255,.45);border-radius:28px;display:grid;place-items:center;font-weight:800;letter-spacing:2px;background:rgba(255,255,255,.13);transform:rotate(-7deg)}
+.food-circle{position:absolute;border:1px solid rgba(255,255,255,.35);border-radius:50%}.circle-one{width:145px;height:145px}.circle-two{width:115px;height:115px}.circle-three{width:180px;height:180px}
+.section-heading,.activity-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin:28px 0 18px}
+.section-heading h2,.activity-heading h2{margin:5px 0 0;font-size:25px;color:#183c31}
+.section-heading p{margin:0;color:#718078;font-size:14px}
+.operations-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px}
+.operation-card{background:#fff;border:1px solid #e5eee9;border-radius:17px;padding:23px;box-shadow:0 8px 24px rgba(24,60,49,.055);display:flex;flex-direction:column;min-height:230px}
+.operation-card h3{font-size:18px;color:#1c4537;margin:18px 0 8px}
+.operation-card p{font-size:14px;color:#687970;line-height:1.55;margin:0 0 20px;flex:1}
+.operation-top{display:flex;justify-content:space-between;align-items:center}
+.operation-icon{width:42px;height:42px;border-radius:12px;background:#e8f5ee;color:#24724f;display:grid;place-items:center;font-size:22px;font-weight:700}
+.operation-number{font-size:12px;color:#9aa9a1;font-weight:700;letter-spacing:1px}
+.operation-card button{border:0;border-radius:9px;background:#176b4b;color:white;padding:12px 15px;font-weight:700;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center}
+.operation-card button:hover{background:#10583d}
+.activity-section{margin-top:30px;background:#fff;border:1px solid #e5eee9;border-radius:17px;padding:22px 24px}
+.activity-heading{margin:0 0 15px;align-items:center}.status-badge{font-size:12px;color:#26734f;background:#eaf6ef;border-radius:30px;padding:7px 12px;font-weight:700}
+.activity-box{display:flex;gap:12px;align-items:flex-start;background:#f7faf8;border-radius:12px;padding:15px;color:#365347}.activity-box p{margin:5px 0 0;color:#728178;font-size:14px}
+.activity-indicator{width:9px;height:9px;border-radius:50%;background:#2f9b68;margin-top:5px;flex:0 0 auto}
+.dashboard-header{display:flex;justify-content:space-between;align-items:center;padding:18px max(24px,calc((100% - 1180px)/2));background:#fff;border-bottom:1px solid #e8efeb}
+.dashboard-brand{display:flex;align-items:center;gap:12px}.dashboard-logo{width:44px;height:44px;border-radius:13px;background:#176b4b;color:#fff;display:grid;place-items:center;font-weight:800}
+.dashboard-brand h1{font-size:21px;margin:0;color:#174b37}.dashboard-brand p{margin:3px 0 0;font-size:12px;color:#829188}
+.dashboard-user{display:flex;align-items:center;gap:18px}.user-info{display:flex;flex-direction:column;gap:3px}.user-label{font-size:11px;color:#87958d}.dashboard-user strong{font-size:14px;color:#244b3b}
+.logout-button{border:1px solid #dce8e1;background:#fff;color:#315846;border-radius:9px;padding:9px 15px;font-weight:700;cursor:pointer}
+@media(max-width:650px){.dashboard-header{padding:14px 18px}.dashboard-container{padding:22px 16px 40px}.welcome-banner{padding:28px 24px}.welcome-visual{display:none}.section-heading{align-items:flex-start;flex-direction:column}.dashboard-user{gap:10px}}
+</style></head><body>
+<header class="dashboard-header"><div class="dashboard-brand"><div class="dashboard-logo">FS</div><div><h1>FoodShare</h1><p>Food Surplus Optimizer</p></div></div>
+<div class="dashboard-user"><div class="user-info"><span class="user-label">Logged in as</span><strong id="welcomeUser">User</strong></div><button class="logout-button" onclick="logout()">Logout</button></div></header>
+<main class="dashboard-container">
+<section class="welcome-banner"><div class="welcome-content"><span class="welcome-tag">FOODSHARE DASHBOARD</span><h2>Welcome back, <span id="welcomeName">User</span></h2><p>Coordinate surplus food donations, manage recipient requests and help deliver available food to the people who need it.</p></div><div class="welcome-visual"><div class="food-circle circle-one"></div><div class="food-circle circle-two"></div><div class="food-circle circle-three"></div><div class="visual-box">FOOD</div></div></section>
+<section class="operations-section"><div class="section-heading"><div><span class="section-label">OPERATIONS</span><h2>Food Management</h2></div><p>Choose an activity to continue</p></div>
+<div class="operations-grid">
+<div class="operation-card donation-card"><div class="operation-top"><div class="operation-icon">+</div><span class="operation-number">01</span></div><h3>Add Food Donation</h3><p>Register available surplus food and provide the donor information.</p><button onclick="location.href='dashboards_menus/add-donation.html'">Add Donation <span>→</span></button></div>
+<div class="operation-card list-card"><div class="operation-top"><div class="operation-icon">▤</div><span class="operation-number">02</span></div><h3>Available Donations</h3><p>Review the food donations currently available in the system.</p><button onclick="location.href='dashboards_menus/view-donation.html'">View Donations <span>→</span></button></div>
+<div class="operation-card request-card"><div class="operation-top"><div class="operation-icon">+</div><span class="operation-number">03</span></div><h3>Add Recipient Request</h3><p>Submit the food requirement and recipient details for matching.</p><button onclick="location.href='dashboards_menus/add-request.html'">Add Request <span>→</span></button></div>
+<div class="operation-card queue-card"><div class="operation-top"><div class="operation-icon">▧</div><span class="operation-number">04</span></div><h3>Recipient Requests</h3><p>Review the food requirements submitted by recipients.</p><button onclick="location.href='dashboards_menus/view-requests.html'">View Requests <span>→</span></button></div>
+<div class="operation-card process-card"><div class="operation-top"><div class="operation-icon">✓</div><span class="operation-number">05</span></div><h3>Match & Distribute Food</h3><p>Find suitable recipients, review their details and confirm a distribution.</p><button onclick="location.href='dashboards_menus/process-donation.html'">Process Donation <span>→</span></button></div>
+<div class="operation-card"><div class="operation-top"><div class="operation-icon">↻</div><span class="operation-number">06</span></div><h3>Review Next Request</h3><p>Review the next submitted recipient request in the request workflow.</p><button onclick="location.href='dashboards_menus/process-request.html'">Review Request <span>→</span></button></div>
+</div></section>
+<section class="activity-section"><div class="activity-heading"><div><span class="section-label">SYSTEM STATUS</span><h2>Quick Activity</h2></div><span class="status-badge">System Ready</span></div><div id="dashboardMessage" class="activity-box"><div class="activity-indicator"></div><div><strong>Ready for action</strong><p>Select an operation above to manage donations and recipient requests.</p></div></div></section>
+</main>
+<script>
+const storedUser = localStorage.getItem('loggedInUser');
+if (!storedUser) { location.replace('login.html'); }
+else { const currentUser = JSON.parse(storedUser); document.getElementById('welcomeUser').textContent = currentUser.username || 'User'; document.getElementById('welcomeName').textContent = currentUser.name || 'User'; }
+function logout() {
+  localStorage.removeItem('loggedInUser');
+  fetch('auth?action=logout', {method:'POST'}).finally(() => location.replace('login.html'));
+}
+</script></body></html>

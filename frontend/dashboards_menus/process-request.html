@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Process Food Request - FoodShare</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #f5fbf8, #eef7f4);
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .back-btn {
+            display: flex;
+            max-width: 760px;
+            margin: 0 auto 25px;
+            text-decoration: none;
+            color: #145a50;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+        }
+
+        .process-card {
+            max-width: 760px;
+            margin: auto;
+            background: rgba(255,255,255,0.97);
+            border-radius: 24px;
+            padding: 42px;
+            box-shadow: 0 15px 45px rgba(20,90,80,0.12);
+            animation: appear 0.6s ease;
+        }
+
+        @keyframes appear {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .process-icon {
+            width: 70px;
+            height: 70px;
+            margin: auto;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #145a50, #2c8b79);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 25px;
+            font-weight: bold;
+            box-shadow: 0 10px 25px rgba(20,90,80,0.2);
+        }
+
+        .header h1 {
+            margin: 18px 0 8px;
+            color: #145a50;
+            font-family: Georgia, serif;
+            font-size: 34px;
+        }
+
+        .header p {
+            margin: 0;
+            color: #777;
+            line-height: 1.6;
+        }
+
+        .queue-info {
+            text-align: center;
+            background: #f1f7f5;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 25px;
+            color: #42645d;
+            font-size: 14px;
+        }
+
+        .process-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #145a50, #2c8b79);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.25s ease;
+            box-shadow: 0 8px 20px rgba(20,90,80,0.2);
+        }
+
+        .process-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 11px 25px rgba(20,90,80,0.28);
+        }
+
+        .process-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #result {
+            margin-top: 25px;
+        }
+
+        .result-card {
+            background: #f8fbfa;
+            border: 1px solid #dce9e5;
+            border-left: 5px solid #145a50;
+            border-radius: 14px;
+            padding: 22px;
+            animation: resultAppear 0.4s ease;
+        }
+
+        @keyframes resultAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result-title {
+            color: #145a50;
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 0;
+            border-bottom: 1px solid #e4ece9;
+        }
+
+        .detail:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #777;
+        }
+
+        .detail-value {
+            color: #333;
+            font-weight: 600;
+            text-align: right;
+        }
+
+        .success-message {
+            background: #e8f6ee;
+            color: #176b3a;
+            border: 1px solid #b9dfc8;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .empty-message {
+            background: #f2f7f5;
+            color: #63736f;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .error-message {
+            background: #fdecec;
+            color: #a33a3a;
+            padding: 14px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .dashboard-btn {
+            display: block;
+            margin: 25px auto 0;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            background: #eeeeee;
+            color: #444;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .dashboard-btn:hover {
+            background: #e1e6e4;
+        }
+
+        @media (max-width: 600px) {
+
+            .process-card {
+                padding: 28px 20px;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .detail {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .detail-value {
+                text-align: left;
+            }
+        }
+
+    </style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <a href="dashboard.html" class="back-btn">
+        ← Back to Dashboard
+    </a>
+
+    <div class="process-card">
+
+        <div class="header">
+
+            <div class="process-icon">
+                PQ
+            </div>
+
+            <h1>Process Next Request</h1>
+
+            <p>
+                Process the next food request waiting in the queue.
+            </p>
+
+        </div>
+
+
+        <div class="queue-info">
+            Queue principle: <strong>First In, First Out (FIFO)</strong>
+        </div>
+
+
+        <button
+            id="processBtn"
+            class="process-btn"
+            onclick="processRequest()">
+
+            Process Next Request
+
+        </button>
+
+
+        <div id="result"></div>
+
+
+        <button
+            class="dashboard-btn"
+            onclick="window.location.href='dashboard.html'">
+
+            Back to Dashboard
+
+        </button>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    // Check login
+
+    const loggedInUser =
+        JSON.parse(localStorage.getItem("loggedInUser"));
+
+    if (!loggedInUser) {
+        window.location.href = "login.html";
+    }
+
+
+    function processRequest() {
+
+        const button =
+            document.getElementById("processBtn");
+
+        const result =
+            document.getElementById("result");
+
+
+        button.disabled = true;
+
+        button.textContent = "Processing...";
+
+        result.innerHTML = "";
+
+
+        const formData =
+            new URLSearchParams();
+
+        formData.append(
+            "action",
+            "processRequest"
+        );
+
+
+        fetch("foodshare", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+
+            body: formData.toString()
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            /*
+             * The Servlet may return the processed
+             * request directly or inside a request object.
+             */
+
+            const request =
+                data.request || data;
+
+
+            if (
+                data.success === false ||
+                data.message === "No requests available"
+            ) {
+
+                result.innerHTML = `
+                    <div class="empty-message">
+                        No food requests are currently waiting in the queue.
+                    </div>
+                `;
+
+                button.disabled = false;
+                button.textContent =
+                    "Process Next Request";
+
+                return;
+            }
+
+
+            /*
+             * Display processed request
+             */
+
+            const requestId =
+                request.requestId || "N/A";
+
+            const recipientName =
+                request.recipientName || "N/A";
+
+            const foodRequired =
+                request.foodRequired || "N/A";
+
+            const quantityRequired =
+                request.quantityRequired || 0;
+
+
+            result.innerHTML = `
+
+                <div class="result-card">
+
+                    <div class="success-message">
+                        Request processed successfully.
+                    </div>
+
+                    <div class="result-title">
+                        Processed Food Request
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Request ID
+                        </span>
+
+                        <span class="detail-value">
+                            ${requestId}
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Recipient
+                        </span>
+
+                        <span class="detail-value">
+                            ${recipientName}
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Food Required
+                        </span>
+
+                        <span class="detail-value">
+                            ${foodRequired}
+                        </span>
+
+                    </div>
+
+                    <div class="detail">
+
+                        <span class="detail-label">
+                            Quantity
+                        </span>
+
+                        <span class="detail-value">
+                            ${quantityRequired} kg
+                        </span>
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            button.disabled = false;
+
+            button.textContent =
+                "Process Next Request";
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            result.innerHTML = `
+                <div class="error-message">
+                    Unable to connect to the server.
+                </div>
+            `;
+
+            button.disabled = false;
+
+            button.textContent =
+                "Process Next Request";
+
+        });
+
+    }
+
+</script>
+
+</body>
+</html>

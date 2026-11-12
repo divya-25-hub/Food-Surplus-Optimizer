@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodShare - View Donations</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .donations-page {
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .donations-container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .back-button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .donations-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        .donations-card h1 {
+            margin-bottom: 8px;
+        }
+
+        .donations-card > p {
+            margin-bottom: 30px;
+        }
+
+        .donation-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .donation-item {
+            border: 1px solid #e0e5e2;
+            border-radius: 12px;
+            padding: 18px 20px;
+            background: #f9fbfa;
+        }
+
+        .donation-item h3 {
+            margin: 0 0 8px;
+        }
+
+        .donation-item p {
+            margin: 5px 0;
+        }
+
+        .empty-message {
+            padding: 25px;
+            text-align: center;
+            background: #f5f7f6;
+            border-radius: 12px;
+        }
+
+        .error-message {
+            padding: 15px;
+            border-radius: 10px;
+            background: #ffe8e8;
+        }
+
+        .loading-message {
+            padding: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="donations-page">
+
+        <div class="donations-container">
+
+            <button class="back-button"
+                    onclick="window.location.href='dashboard.html'">
+                ← Back to Dashboard
+            </button>
+
+            <div class="donations-card">
+
+                <h1>Food Donations</h1>
+
+                <p>
+                    View the food donations currently stored
+                    in the donation linked list.
+                </p>
+
+                <div id="donationList"
+                     class="loading-message">
+                    Loading donations...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* ------------------------------------------
+           CHECK LOGIN
+        ------------------------------------------ */
+
+        const storedUser =
+            localStorage.getItem("loggedInUser");
+
+
+        if (storedUser === null) {
+
+            window.location.href = "login.html";
+
+        }
+
+
+        /* ------------------------------------------
+           LOAD DONATIONS
+        ------------------------------------------ */
+
+        fetch("foodshare", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+
+            body:
+                "action=viewDonations"
+
+        })
+
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error(
+                    "Server returned an error."
+                );
+            }
+
+            return response.json();
+
+        })
+
+        .then(data => {
+
+            displayDonations(data);
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            document.getElementById(
+                "donationList"
+            ).innerHTML = `
+                <div class="error-message">
+                    Unable to retrieve donations
+                    from the Java backend.
+                </div>
+            `;
+
+        });
+
+
+        /* ------------------------------------------
+           DISPLAY DONATIONS
+        ------------------------------------------ */
+
+        function displayDonations(data) {
+
+            const container =
+                document.getElementById(
+                    "donationList"
+                );
+
+
+            /*
+             * The Servlet may return the donations
+             * under the "donations" property.
+             */
+
+            let donations = data.donations;
+
+
+            /*
+             * If the response itself is an array,
+             * use that array.
+             */
+
+            if (!donations && Array.isArray(data)) {
+
+                donations = data;
+
+            }
+
+
+            /*
+             * If no donation data is available.
+             */
+
+            if (!donations ||
+                donations.length === 0) {
+
+                container.innerHTML = `
+                    <div class="empty-message">
+                        No food donations are currently
+                        available.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            container.innerHTML = "";
+
+
+            donations.forEach(function(donation) {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "donation-item";
+
+
+                item.innerHTML = `
+                    <h3>
+                        ${donation.foodName || "Food Donation"}
+                    </h3>
+
+                    <p>
+                        <strong>Quantity:</strong>
+                        ${donation.quantity || ""}
+                    </p>
+
+                    <p>
+                        <strong>Donor:</strong>
+                        ${donation.donorName || ""}
+                    </p>
+
+                    <p>
+                        <strong>Donation ID:</strong>
+                        ${donation.donationId || ""}
+                    </p>
+                `;
+
+
+                container.appendChild(item);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

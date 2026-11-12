@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodShare - Add Donation</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .donation-page {
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .donation-container {
+            max-width: 650px;
+            margin: 40px auto;
+        }
+
+        .donation-header {
+            margin-bottom: 25px;
+        }
+
+        .back-button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .donation-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        .donation-card h1 {
+            margin-bottom: 8px;
+        }
+
+        .donation-card > p {
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 15px;
+            border: 1px solid #d5d5d5;
+            border-radius: 10px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2f8f5b;
+        }
+
+        .form-group input[readonly] {
+            background: #f3f5f4;
+        }
+
+        .submit-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+
+        .cancel-button {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            margin-top: 10px;
+        }
+
+        .form-message {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .form-message.success {
+            display: block;
+        }
+
+        .form-message.error {
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="donation-page">
+
+        <div class="donation-container">
+
+            <div class="donation-header">
+
+                <button class="back-button"
+                        onclick="window.location.href='dashboard.html'">
+                    ← Back to Dashboard
+                </button>
+
+            </div>
+
+            <div class="donation-card">
+
+                <h1>Add Food Donation</h1>
+
+                <p>
+                    Register surplus food that you would like to
+                    contribute through FoodShare.
+                </p>
+
+                <form id="donationForm">
+
+                    <div class="form-group">
+
+                        <label for="foodName">
+                            Food Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="foodName"
+                            name="foodName"
+                            placeholder="Enter food name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="quantity">
+                            Quantity
+                        </label>
+
+                        <input
+                            type="number"
+                            id="quantity"
+                            name="quantity"
+                            placeholder="Enter quantity"
+                            min="1"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="donorName">
+                            Donor Name
+                        </label>
+
+                        <input
+                            type="text"
+                            id="donorName"
+                            name="donorName"
+                            readonly
+                        >
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="submit-button">
+                        Submit Donation
+                    </button>
+
+
+                    <button
+                        type="button"
+                        class="cancel-button"
+                        onclick="window.location.href='dashboard.html'">
+                        Cancel
+                    </button>
+
+                </form>
+
+
+                <div id="formMessage"
+                     class="form-message">
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* ------------------------------------------
+           CHECK LOGIN
+        ------------------------------------------ */
+
+        const storedUser =
+            localStorage.getItem("loggedInUser");
+
+
+        if (storedUser === null) {
+
+            window.location.href = "login.html";
+
+        }
+
+
+        const user =
+            JSON.parse(storedUser);
+
+
+        document.getElementById("donorName").value =
+            user.name;
+
+
+        /* ------------------------------------------
+           SUBMIT DONATION
+        ------------------------------------------ */
+
+        document.getElementById("donationForm")
+            .addEventListener("submit", function(event) {
+
+                event.preventDefault();
+
+
+                const foodName =
+                    document.getElementById("foodName").value.trim();
+
+                const quantity =
+                    document.getElementById("quantity").value;
+
+                const donorName =
+                    document.getElementById("donorName").value;
+
+
+                if (foodName === "" || quantity === "") {
+
+                    showMessage(
+                        "Please fill in all required fields.",
+                        "error"
+                    );
+
+                    return;
+                }
+
+
+                const formData =
+                    new URLSearchParams();
+
+
+                formData.append(
+                    "action",
+                    "addDonation"
+                );
+
+                formData.append(
+                    "foodName",
+                    foodName
+                );
+
+                formData.append(
+                    "quantity",
+                    quantity
+                );
+
+                formData.append(
+                    "donorName",
+                    donorName
+                );
+
+
+                fetch("foodshare", {
+
+                    method: "POST",
+
+                    body: formData
+
+                })
+
+                .then(response => {
+
+                    if (!response.ok) {
+                        throw new Error(
+                            "Server returned an error."
+                        );
+                    }
+
+                    return response.json();
+
+                })
+
+                .then(data => {
+
+                    showMessage(
+                        data.message ||
+                        "Donation added successfully.",
+                        "success"
+                    );
+
+
+                    setTimeout(function() {
+
+                        window.location.href =
+                            "dashboard.html";
+
+                    }, 1200);
+
+                })
+
+                .catch(error => {
+
+                    console.error(error);
+
+                    showMessage(
+                        "Unable to connect to the Java backend.",
+                        "error"
+                    );
+
+                });
+
+            });
+
+
+        /* ------------------------------------------
+           MESSAGE
+        ------------------------------------------ */
+
+        function showMessage(message, type) {
+
+            const messageBox =
+                document.getElementById("formMessage");
+
+
+            messageBox.textContent = message;
+
+            messageBox.className =
+                "form-message " + type;
+
+        }
+
+    </script>
+
+</body>
+
+</html>

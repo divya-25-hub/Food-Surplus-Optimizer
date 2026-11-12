@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Donation | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="add-donation" data-title="Add Donation" data-sub="Register surplus food that is available for distribution">
+<div id="content">
+<div class="split">
+  <div class="card" id="formCard">
+    <div class="card-head"><div><h2>Donation details</h2><p>All fields are required</p></div></div>
+    <form id="donationForm" class="card-pad" novalidate>
+      <div class="form-row"><label for="foodName">Food item</label>
+        <input class="input" id="foodName" maxlength="100" placeholder="e.g. Rice, Bread, Vegetables" autocomplete="off"></div>
+      <div class="form-row"><label for="quantity">Quantity (kg)</label>
+        <input class="input" id="quantity" type="number" min="1" step="1" placeholder="e.g. 25"></div>
+      <div class="form-row"><label for="donorName">Donor name</label>
+        <input class="input" id="donorName" maxlength="50" placeholder="Person or organisation donating" autocomplete="off"></div>
+      <div id="formAlert"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" id="submitBtn" type="submit">Save Donation</button>
+        <a class="btn btn-outline btn-lg" href="view-donations.html">View Donations</a>
+      </div>
+    </form>
+    <div id="done" style="display:none"></div>
+  </div>
+  <div class="card tip"><h3>What happens next</h3>
+    <ol><li>The donation is saved to the database.</li>
+    <li>It is added to the available donations list and the donation stack.</li>
+    <li>The newest donation is the next one offered in <b>Process Donation</b>.</li></ol></div>
+</div>
+</div>
+<script src="app.js"></script>
+<script>
+document.getElementById('donationForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var food = document.getElementById('foodName').value.trim();
+  var qty = document.getElementById('quantity').value.trim();
+  var donor = document.getElementById('donorName').value.trim();
+  var alertBox = document.getElementById('formAlert');
+  alertBox.innerHTML = '';
+  if (!food || !qty || !donor) { alertBox.innerHTML = '<div class="alert error">Please fill in all required fields.</div>'; return; }
+  if (!/^[1-9]\d*$/.test(qty)) { alertBox.innerHTML = '<div class="alert error">Quantity must be a whole number greater than zero.</div>'; return; }
+  var btn = document.getElementById('submitBtn'); btn.disabled = true; btn.textContent = 'Saving...';
+  try {
+    var data = await FS.api('addDonation', { foodName: food, quantity: qty, donorName: donor });
+    if (data.success) {
+      FS.toast('Donation saved successfully', '');
+      document.getElementById('donationForm').style.display = 'none';
+      var d = document.getElementById('done');
+      d.style.display = 'block';
+      d.innerHTML = '<div class="success-panel"><div class="tick">' + FS.icons.tick + '</div><h2>Donation saved</h2>' +
+        '<p>' + FS.esc(qty) + ' kg of ' + FS.esc(food) + ' from ' + FS.esc(donor) + ' (ref. ' + FS.esc(data.donationId) + ') is now available.</p>' +
+        '<div class="form-actions" style="justify-content:center"><a class="btn btn-primary" href="add-donation.html">Add Another</a>' +
+        '<a class="btn btn-outline" href="view-donations.html">View Donations</a></div></div>';
+    } else {
+      alertBox.innerHTML = '<div class="alert error">' + FS.esc(data.message || 'The donation could not be saved.') + '</div>';
+    }
+  } catch (err) {
+    console.error(err);
+    alertBox.innerHTML = '<div class="alert error">Unable to reach the server. Please try again.</div>';
+  } finally { btn.disabled = false; btn.textContent = 'Save Donation'; }
+});
+</script></body></html>

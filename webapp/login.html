@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodShare - Login</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="login-page">
+
+        <!-- LEFT SIDE -->
+        <section class="login-hero">
+
+            <div class="hero-decoration hero-circle"></div>
+            <div class="hero-decoration hero-circle-small"></div>
+
+            <div class="hero-content">
+
+                <!-- Brand -->
+                <div class="brand">
+                    <div class="brand-leaf">◆</div>
+                    <span>FoodShare</span>
+                </div>
+
+
+                <!-- Main Heading -->
+                <h1>
+                    Reduce Waste.<br>
+                    Share Food.<br>
+                    Change Lives.
+                </h1>
+
+                <div class="heading-line"></div>
+
+
+                <p class="hero-description">
+                    A smart platform connecting food donors with
+                    organizations and communities that need it.
+                </p>
+
+
+                <!-- Food Illustration -->
+                <div class="food-illustration">
+
+                    <div class="heart">♥</div>
+
+                    <div class="food-box">
+
+                        <div class="food tomato"></div>
+                        <div class="food carrot"></div>
+                        <div class="food apple"></div>
+                        <div class="food bread"></div>
+
+                        <div class="box-front"></div>
+
+                    </div>
+
+                    <div class="hand hand-left"></div>
+                    <div class="hand hand-right"></div>
+
+                </div>
+
+
+                <!-- Features -->
+                <div class="features">
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">
+                            ♻
+                        </div>
+
+                        <div>
+                            <h3>Reduce food waste</h3>
+                            <p>Give surplus food a second purpose.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">
+                            ●●
+                        </div>
+
+                        <div>
+                            <h3>Connect donors and recipients</h3>
+                            <p>Build stronger, healthier communities.</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="feature-item">
+
+                        <div class="feature-icon">
+                            ◉
+                        </div>
+
+                        <div>
+                            <h3>Build a sustainable community</h3>
+                            <p>A greener tomorrow starts with you.</p>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RIGHT SIDE -->
+        <section class="login-section">
+
+            <div class="login-container">
+
+                <div class="login-heading">
+
+                    <h2>Welcome Back!</h2>
+
+                    <p>
+                        Log in to continue managing food donations.
+                    </p>
+
+                </div>
+
+
+                <!-- LOGIN FORM -->
+                <form id="loginForm">
+
+                    <div class="input-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">♙</span>
+
+                            <input
+                                type="text"
+                                id="username"
+                                placeholder="Enter your username"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="input-group">
+
+                        <label for="password">
+                            Password
+                        </label>
+
+                        <div class="input-wrapper">
+
+                            <span class="input-icon">▣</span>
+
+                            <input
+                                type="password"
+                                id="password"
+                                placeholder="Enter your password"
+                            >
+
+                            <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="togglePassword()"
+                            >
+                                ◉
+                            </button>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- OPTIONS -->
+                    <div class="login-options">
+
+                        <label class="remember">
+
+                            <input
+                                type="checkbox"
+                                id="remember"
+                            >
+
+                            <span>Remember me</span>
+
+                        </label>
+
+                        <a href="#" class="forgot">
+                            Forgot Password?
+                        </a>
+
+                    </div>
+
+
+                    <!-- LOGIN BUTTON -->
+                    <button
+                        type="submit"
+                        class="login-button"
+                    >
+                        Login
+                        <span>→</span>
+                    </button>
+
+
+                    <!-- MESSAGE -->
+                    <p id="message"></p>
+
+                </form>
+
+
+                <!-- DIVIDER -->
+                <div class="divider">
+
+                    <span></span>
+
+                    <p>OR</p>
+
+                    <span></span>
+
+                </div>
+
+
+                <!-- REGISTER -->
+                <div class="register-box">
+
+                    <p>Don't have an account?</p>
+
+                    <a
+                        href="register.html"
+                        class="register-button"
+                    >
+                        <span>♙</span>
+                        Create Account
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>

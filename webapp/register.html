@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodShare - Register</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="register-page">
+
+        <div class="register-card">
+
+            <!-- LEFT BRANDING SECTION -->
+            <div class="register-info">
+
+                <div class="brand-logo">
+                    FS
+                </div>
+
+                <h1>FoodShare</h1>
+
+                <h2>
+                    Share More.<br>
+                    Waste Less.
+                </h2>
+
+                <p>
+                    Join our food redistribution network and
+                    help connect surplus food with people who need it.
+                </p>
+
+                <div class="feature">
+
+                    <div class="feature-icon">01</div>
+
+                    <div>
+                        <strong>Reduce Food Waste</strong>
+                        <span>Give surplus food a second purpose.</span>
+                    </div>
+
+                </div>
+
+                <div class="feature">
+
+                    <div class="feature-icon">02</div>
+
+                    <div>
+                        <strong>Connect Communities</strong>
+                        <span>Bring donors and recipients together.</span>
+                    </div>
+
+                </div>
+
+                <div class="feature">
+
+                    <div class="feature-icon">03</div>
+
+                    <div>
+                        <strong>Make an Impact</strong>
+                        <span>Every contribution can make a difference.</span>
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- RIGHT REGISTRATION SECTION -->
+            <div class="register-form-section">
+
+                <div class="form-heading">
+
+                    <h2>Create Account</h2>
+
+                    <p>
+                        Enter your details to get started.
+                    </p>
+
+                </div>
+
+
+                <!-- REGISTRATION FORM -->
+                <form id="registerForm">
+
+
+                    <!-- FULL NAME -->
+                    <div class="input-group">
+
+                        <label for="name">
+                            Full Name <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="Enter your full name"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- GENERATED USERNAME -->
+                    <div class="input-group">
+
+                        <label for="username">
+                            Username
+                        </label>
+
+                        <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            placeholder="Username will be generated"
+                            readonly
+                        >
+
+                        <small class="input-note">
+                            Username is generated automatically from your full name.
+                        </small>
+
+                    </div>
+
+
+                    <!-- EMAIL -->
+                    <div class="input-group">
+
+                        <label for="email">
+                            Email Address <span class="required">*</span>
+                        </label>
+
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email"
+                            required
+                        >
+
+                    </div>
+
+
+                    <!-- PASSWORD ROW -->
+                    <div class="form-row">
+
+
+                        <div class="input-group">
+
+                            <label for="password">
+                                Password <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Create password"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="input-group">
+
+                            <label for="confirmPassword">
+                                Confirm Password <span class="required">*</span>
+                            </label>
+
+                            <input
+                                type="password"
+                                id="confirmPassword"
+                                name="confirmPassword"
+                                placeholder="Confirm password"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- MESSAGE -->
+                    <p id="registerMessage"></p>
+
+
+                    <!-- BUTTON -->
+                    <button
+                        type="submit"
+                        class="create-account-button"
+                    >
+                        Create Account
+                    </button>
+
+                </form>
+
+
+                <!-- LOGIN LINK -->
+                <div class="back-login">
+
+                    <span>Already have an account?</span>
+
+                    <a href="login.html">
+                        Login here
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+    const registerForm = document.getElementById("registerForm");
+
+    const nameField = document.getElementById("name");
+    const usernameField = document.getElementById("username");
+    const emailField = document.getElementById("email");
+    const passwordField = document.getElementById("password");
+    const confirmPasswordField =
+        document.getElementById("confirmPassword");
+
+    const message =
+        document.getElementById("registerMessage");
+
+
+    // ==========================================
+    // GENERATE USERNAME AUTOMATICALLY
+    // ==========================================
+
+    nameField.addEventListener("input", function () {
+
+        const name = nameField.value.trim();
+
+        const username = name
+            .toLowerCase()
+            .replace(/\s+/g, "")
+            .replace(/[^a-z0-9]/g, "");
+
+        usernameField.value = username;
+
+    });
+
+
+    // ==========================================
+    // HANDLE REGISTRATION
+    // ==========================================
+
+    registerForm.addEventListener("submit", function (event) {
+
+        // STOP normal form submission
+        event.preventDefault();
+
+
+        const name = nameField.value.trim();
+        const username = usernameField.value.trim();
+        const email = emailField.value.trim();
+        const password = passwordField.value;
+        const confirmPassword =
+            confirmPasswordField.value;
+
+
+        // ==========================================
+        // VALIDATION
+        // ==========================================
+
+        if (
+            name === "" ||
+            username === "" ||
+            email === "" ||
+            password === "" ||
+            confirmPassword === ""
+        ) {
+
+            message.textContent =
+                "Please fill in all required fields.";
+
+            message.className = "error-message";
+
+            return;
+        }
+
+
+        if (password !== confirmPassword) {
+
+            message.textContent =
+                "Passwords do not match.";
+
+            message.className = "error-message";
+
+            return;
+        }
+
+
+        // ==========================================
+        // SEND DATA TO AUTH SERVLET
+        // ==========================================
+
+        message.textContent =
+            "Creating your account...";
+
+        message.className = "";
+
+
+        fetch("auth", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+
+            body:
+                "action=register" +
+                "&username=" +
+                encodeURIComponent(username) +
+                "&name=" +
+                encodeURIComponent(name) +
+                "&email=" +
+                encodeURIComponent(email) +
+                "&password=" +
+                encodeURIComponent(password) +
+                "&role=DONOR"
+
+        })
+
+        .then(response => response.json())
+
+        .then(data => {
+
+            console.log("Server response:", data);
+
+
+            if (data.success) {
+
+                message.innerHTML =
+                    "Account created successfully!<br>" +
+                    "Your username is: <strong>" +
+                    username +
+                    "</strong>";
+
+                message.className =
+                    "success-message";
+
+
+                // Save the registered user temporarily
+                localStorage.setItem(
+                    "foodShareUser",
+                    JSON.stringify({
+                        username: username,
+                        name: name,
+                        email: email,
+                        password: password
+                    })
+                );
+
+
+                // Go to login
+                setTimeout(function () {
+
+                    window.location.href =
+                        "login.html";
+
+                }, 2000);
+
+            }
+
+            else {
+
+                message.textContent =
+                    data.message ||
+                    "Registration failed.";
+
+                message.className =
+                    "error-message";
+            }
+
+        })
+
+        .catch(error => {
+
+            console.error(
+                "Registration error:",
+                error
+            );
+
+            message.textContent =
+                "Unable to connect to the server.";
+
+            message.className =
+                "error-message";
+
+        });
+
+    });
+
+</script>
+
+</body>
+
+</html>

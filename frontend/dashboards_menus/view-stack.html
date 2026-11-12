@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>FoodShare - Donation Stack</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+        .stack-page {
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .stack-container {
+            max-width: 900px;
+            margin: 40px auto;
+        }
+
+        .back-button {
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .stack-card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
+        }
+
+        .stack-card h1 {
+            margin-bottom: 8px;
+        }
+
+        .stack-card > p {
+            margin-bottom: 30px;
+        }
+
+        .stack-info {
+            padding: 15px 18px;
+            background: #f5f7f6;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+
+        .stack-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .stack-item {
+            border: 1px solid #e0e5e2;
+            border-radius: 12px;
+            padding: 18px 20px;
+            background: #f9fbfa;
+        }
+
+        .stack-item h3 {
+            margin: 0 0 8px;
+        }
+
+        .stack-item p {
+            margin: 5px 0;
+        }
+
+        .top-label {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .empty-message,
+        .error-message,
+        .loading-message {
+            padding: 20px;
+            text-align: center;
+            border-radius: 12px;
+        }
+
+        .empty-message {
+            background: #f5f7f6;
+        }
+
+        .error-message {
+            background: #ffe8e8;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="stack-page">
+
+        <div class="stack-container">
+
+            <button class="back-button"
+                    onclick="window.location.href='dashboard.html'">
+                ← Back to Dashboard
+            </button>
+
+            <div class="stack-card">
+
+                <h1>Donation Stack</h1>
+
+                <p>
+                    View donations.
+                </p>
+
+                <div id="stackList"
+                     class="loading-message">
+                    Loading donation stack...
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /* ------------------------------------------
+           CHECK LOGIN
+        ------------------------------------------ */
+
+        const storedUser =
+            localStorage.getItem("loggedInUser");
+
+
+        if (storedUser === null) {
+
+            window.location.href = "login.html";
+
+        }
+
+
+        /* ------------------------------------------
+           LOAD STACK
+           ------------------------------------------ */
+
+        fetch("foodshare", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                    "application/x-www-form-urlencoded"
+            },
+
+            body:
+                "action=viewStack"
+
+        })
+
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error(
+                    "Server returned an error."
+                );
+            }
+
+            return response.json();
+
+        })
+
+        .then(data => {
+
+            displayStack(data);
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            document.getElementById(
+                "stackList"
+            ).innerHTML = `
+                <div class="error-message">
+                    Unable to retrieve the donation stack
+                    from the Java backend.
+                </div>
+            `;
+
+        });
+
+
+        /* ------------------------------------------
+           DISPLAY STACK
+           ------------------------------------------ */
+
+        function displayStack(data) {
+
+            const container =
+                document.getElementById(
+                    "stackList"
+                );
+
+
+            let stack = data.stack;
+
+
+            if (!stack && Array.isArray(data)) {
+
+                stack = data;
+
+            }
+
+
+            if (!stack ||
+                stack.length === 0) {
+
+                container.innerHTML = `
+                    <div class="empty-message">
+                        The donation stack is currently empty.
+                    </div>
+                `;
+
+                return;
+
+            }
+
+
+            container.innerHTML = "";
+
+
+            stack.forEach(function(donation, index) {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "stack-item";
+
+
+                item.innerHTML = `
+
+                    ${index === 0
+                        ? '<div class="top-label">TOP OF STACK</div>'
+                        : ''
+                    }
+
+                    <h3>
+                        ${donation.foodName ||
+                          "Food Donation"}
+                    </h3>
+
+                    <p>
+                        <strong>Quantity:</strong>
+                        ${donation.quantity || ""}
+                    </p>
+
+                    <p>
+                        <strong>Donor:</strong>
+                        ${donation.donorName || ""}
+                    </p>
+
+                    <p>
+                        <strong>Donation ID:</strong>
+                        ${donation.donationId || ""}
+                    </p>
+
+                `;
+
+
+                container.appendChild(item);
+
+            });
+
+        }
+
+    </script>
+
+</body>
+
+</html>

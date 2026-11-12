@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Add Request | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="add-request" data-title="Add Request" data-sub="Record the food a recipient needs">
+<div id="content">
+<div class="split">
+  <div class="card">
+    <div class="card-head"><div><h2>Request details</h2><p>A request ID is generated automatically</p></div></div>
+    <form id="requestForm" class="card-pad" novalidate>
+      <div class="form-row"><label for="recipientName">Recipient name</label>
+        <input class="input" id="recipientName" maxlength="100" placeholder="Person or organisation in need" autocomplete="off"></div>
+      <div class="form-row"><label for="foodRequired">Food required</label>
+        <input class="input" id="foodRequired" maxlength="100" placeholder="e.g. Rice, Bread, Vegetables" autocomplete="off"></div>
+      <div class="form-row"><label for="quantityRequired">Quantity required (kg)</label>
+        <input class="input" id="quantityRequired" type="number" min="1" step="1" placeholder="e.g. 10"></div>
+      <div id="formAlert"></div>
+      <div class="form-actions">
+        <button class="btn btn-primary btn-lg" id="submitBtn" type="submit">Submit Request</button>
+        <a class="btn btn-outline btn-lg" href="view-requests.html">View Requests</a>
+      </div>
+    </form>
+    <div id="done" style="display:none"></div>
+  </div>
+  <div class="card tip"><h3>What happens next</h3>
+    <ol><li>The request is saved to the database as <b>Pending</b>.</li>
+    <li>It joins the request queue (first in, first out).</li>
+    <li>Use <b>Process Request</b> to find suitable donors.</li></ol></div>
+</div>
+</div>
+<script src="app.js"></script>
+<script>
+document.getElementById('requestForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var name = document.getElementById('recipientName').value.trim();
+  var food = document.getElementById('foodRequired').value.trim();
+  var qty = document.getElementById('quantityRequired').value.trim();
+  var box = document.getElementById('formAlert'); box.innerHTML = '';
+  if (!name || !food || !qty) { box.innerHTML = '<div class="alert error">Please fill in all required fields.</div>'; return; }
+  if (!/^[1-9]\d*$/.test(qty)) { box.innerHTML = '<div class="alert error">Quantity must be a whole number greater than zero.</div>'; return; }
+  var btn = document.getElementById('submitBtn'); btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    var data = await FS.api('addRequest', { recipientName: name, foodRequired: food, quantityRequired: qty });
+    if (data.success) {
+      FS.toast('Request submitted successfully');
+      document.getElementById('requestForm').style.display = 'none';
+      var d = document.getElementById('done'); d.style.display = 'block';
+      d.innerHTML = '<div class="success-panel"><div class="tick">' + FS.icons.tick + '</div><h2>Request submitted</h2>' +
+        '<p>Request <b>' + FS.esc(data.requestId) + '</b> for ' + FS.esc(qty) + ' kg of ' + FS.esc(food) + ' by ' + FS.esc(name) + ' is now pending.</p>' +
+        '<div class="form-actions" style="justify-content:center"><a class="btn btn-primary" href="add-request.html">Add Another</a>' +
+        '<a class="btn btn-outline" href="view-requests.html">View Requests</a></div></div>';
+    } else { box.innerHTML = '<div class="alert error">' + FS.esc(data.message || 'The request could not be saved.') + '</div>'; }
+  } catch (err) { console.error(err); box.innerHTML = '<div class="alert error">Unable to reach the server. Please try again.</div>'; }
+  finally { btn.disabled = false; btn.textContent = 'Submit Request'; }
+});
+</script></body></html>

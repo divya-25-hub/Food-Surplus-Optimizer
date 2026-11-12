@@ -1,0 +1,32 @@
+FOODSHARE - RUNNING THE WEB APPLICATION
+=======================================
+
+1. Start MySQL. Database settings are in src/database/DBConnection.java (unchanged).
+   Tables are created / upgraded automatically when Tomcat starts
+   (see src/database/SchemaInitializer.java). foodshare_schema_and_sample_data.sql
+   documents the tables. Existing data is never deleted.
+
+2. The Java classes are ALREADY compiled into webapp/WEB-INF/classes.
+   If you change Java code, recompile (from this folder, JDK 17+):
+     javac -cp "lib/servlet-api.jar;lib/mysql-connector-j-26.10.0.jar" -d webapp/WEB-INF/classes src/*/*.java src/Main.java
+   (use ":" instead of ";" on Mac/Linux)
+
+3. Copy the whole "webapp" folder into Tomcat's webapps folder (replace the old one):
+     C:\apache-tomcat-10.1.60\webapps\webapp
+   Start Tomcat with bin\startup.bat.  (Restart Tomcat after replacing files.)
+
+4. Open  http://localhost:8080/webapp/login.html
+
+HOW IT WORKS NOW
+----------------
+- Add Donation  -> row saved in Donations (status AVAILABLE), then added to the linked list + stack.
+- Add Request   -> row saved in FoodShareAppRequests (status PENDING), then added to the queue.
+- Process Donation: shows the newest donation, matching recipients (with contact details),
+  Confirm button -> Yes/No dialog.
+    Yes: FoodShareNeeds -> FULFILLED and Donations -> DISTRIBUTED (one transaction).
+    No : nothing changes, donation stays available.
+- Process Request: shows the next pending request, suitable donors (with contact details),
+  Confirm button -> Yes/No dialog.
+    Yes: FoodShareAppRequests -> FULFILLED.   No: request stays PENDING.
+- After a Tomcat restart, AVAILABLE donations (latest 5) and PENDING requests (oldest 5)
+  are reloaded from MySQL into the stack / list / queue (their capacity is 5).

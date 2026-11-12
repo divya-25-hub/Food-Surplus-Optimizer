@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pending Requests | FoodShare</title><link rel="stylesheet" href="app.css"></head>
+<body class="app" data-page="view-requests" data-title="Pending Requests" data-sub="Recipient requests waiting to be matched (first in, first out)">
+<div id="content">
+<div class="card">
+  <div class="card-head"><div><h2>Request queue</h2><p id="count">Loading...</p></div>
+    <div style="display:flex;gap:10px"><button class="btn btn-outline" id="refresh">Refresh</button><a class="btn btn-primary" href="add-request.html">Add Request</a></div></div>
+  <div id="body" class="table-wrap"></div>
+</div>
+</div>
+<script src="app.js"></script>
+<script>
+async function load() {
+  var body = document.getElementById('body'); body.innerHTML = FS.loading();
+  try {
+    var list = await FS.api('viewRequests');
+    if (!Array.isArray(list)) throw new Error(list.message);
+    document.getElementById('count').textContent = list.length + (list.length === 1 ? ' pending request' : ' pending requests');
+    if (!list.length) { body.innerHTML = FS.empty('No pending requests', 'Submitted requests will be listed here.', 'add-request.html', 'Add Request'); return; }
+    body.innerHTML = '<table class="data"><thead><tr><th>#</th><th>Request ID</th><th>Recipient</th><th>Food required</th><th>Quantity</th><th>Status</th></tr></thead><tbody>' +
+      list.map(function (r, i) { return '<tr><td>' + (i + 1) + '</td><td class="mono">' + FS.esc(r.requestId) + '</td><td><b>' + FS.esc(r.recipientName) + '</b></td><td>' +
+        FS.esc(r.foodRequired) + '</td><td>' + FS.esc(r.quantityRequired) + ' kg</td><td>' + (i === 0 ? '<span class="badge amber">Next in queue</span>' : '<span class="badge gray">Pending</span>') + '</td></tr>'; }).join('') + '</tbody></table>';
+  } catch (e) { console.error(e); body.innerHTML = FS.error('Unable to load requests from the server.'); }
+}
+document.getElementById('refresh').onclick = load; load();
+</script></body></html>
